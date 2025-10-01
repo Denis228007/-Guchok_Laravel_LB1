@@ -17,17 +17,13 @@ class Post extends Model
         'category_id',
         'title',
         'slug',
+        'cover_image',
         'excerpt',
         'body',
         'published_at',
         'is_published',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
     protected $casts = [
         'body' => 'array',
         'published_at' => 'datetime',

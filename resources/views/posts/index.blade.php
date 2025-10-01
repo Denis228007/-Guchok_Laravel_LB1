@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mb-4">
-        <a href="#" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <a href="{{ route('posts.create') }}" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             + Додати нове місце
         </a>
     </div>
@@ -13,7 +13,7 @@
         @forelse($posts as $post)
             <article class="p-6 bg-white rounded-lg border border-gray-200 shadow-md">
                 <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">
-                    <a href="#">{{ $post->title }}</a>
+                    <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
                 </h2>
                 <div class="mb-4 text-sm text-gray-500">
                     <span>Категорія: {{ optional($post->category)->name ?? 'Без категорії' }}</span>
@@ -21,7 +21,7 @@
                     <span>Автор: {{ $post->author->name }}</span>
                 </div>
                 <p class="mb-5 font-light text-gray-500">{{ $post->excerpt }}</p>
-                <a href="#" class="inline-flex items-center font-medium text-blue-600 hover:underline">
+                <a href="{{ route('posts.show', $post) }}" class="inline-flex items-center font-medium text-blue-600 hover:underline">
                     Читати далі →
                 </a>
             </article>
@@ -34,3 +34,4 @@
         {{ $posts->links() }}
     </div>
 @endsection
+
