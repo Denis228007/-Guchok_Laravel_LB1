@@ -1,27 +1,23 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ContactController;
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::middleware(['check.word'])->group(function () {
-    Route::get('/home', [HomeController::class, 'index']);
-    Route::get('/home/about', [HomeController::class, 'about']);
-    Route::get('/home/services', [HomeController::class, 'services']);
-
-    Route::get('/profile', [ProfileController::class, 'index']);
-    Route::get('/profile/settings', [ProfileController::class, 'settings']);
-    Route::get('/profile/history', [ProfileController::class, 'history']);
-
-    Route::get('/contact', [ContactController::class, 'index']);
-    Route::get('/contact/feedback', [ContactController::class, 'feedback']);
-    Route::get('/contact/support', [ContactController::class, 'support']);
-});
 
 
-Route::get('/echo', [App\Http\Controllers\ProfileController::class, 'echoJson']);
+Route::get('/', [PostController::class, 'index'])->name('home');
+
+
+Route::resource('posts', PostController::class);
+
+
+Route::resource('categories', CategoryController::class)->only(['index', 'show']);
+
+
+Route::resource('tags', TagController::class)->only(['index', 'show']);
+
+
+Route::resource('posts.comments', CommentController::class)->only(['store', 'destroy']);
+

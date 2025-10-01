@@ -23,27 +23,34 @@ class Post extends Model
         'is_published',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'body' => 'array',
+        'published_at' => 'datetime',
+    ];
 
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
-
 
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
     }
 
-
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
     }
 }
+

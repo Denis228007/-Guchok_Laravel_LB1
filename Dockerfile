@@ -1,4 +1,3 @@
-
 FROM php:8.3-fpm
 
 
@@ -15,6 +14,10 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+
+RUN apt-get install -y nodejs
+
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
 
@@ -26,7 +29,5 @@ COPY . .
 
 RUN composer install
 
-
 EXPOSE 9000
-
 CMD ["php-fpm"]
