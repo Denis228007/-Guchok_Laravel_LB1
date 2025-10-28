@@ -18,11 +18,22 @@
             <span>Опубліковано: {{ $post->published_at->format('d.m.Y') }}</span>
         </div>
 
-        <div class="mb-4">
-            <form action="{{ route('cart.add', $post) }}" method="POST">
+        {{-- 👇 Я об'єднав кнопки в один блок d-flex для кращого вигляду 👇 --}}
+        <div class="mb-4 d-flex align-items-center gap-2">
+            {{-- Кнопка "Купити" --}}
+            <form action="{{ route('cart.add', $post) }}" method="POST" class="mb-0">
                 @csrf
                 <button type="submit" class="btn btn-success btn-lg">
                     Купити квиток ({{ (int)$post->price }} грн)
+                </button>
+            </form>
+
+            {{-- 👇 НОВА КНОПКА "ВИДАЛИТИ" 👇 --}}
+            <form action="{{ route('posts.destroy', $post) }}" method="POST" class="mb-0">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger btn-lg">
+                    Видалити
                 </button>
             </form>
         </div>
@@ -48,3 +59,4 @@
         @endif
     </div>
 @endsection
+

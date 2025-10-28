@@ -54,9 +54,22 @@
                     @endforeach
                 </tbody>
             </table>
-            <div class="text-right p-4 border-t-2 border-gray-200">
-                <h3 class="text-lg font-semibold">Всього: {{ Cart::getTotal() }} грн</h3>
+
+            {{-- 👇 ОНОВЛЕНИЙ БЛОК "Всього" 👇 --}}
+            <div class="d-flex justify-content-end p-4 border-t-2 border-gray-200">
+                <div classtext-right">
+                    <h3 class="text-lg font-semibold mb-3">Всього: {{ Cart::getTotal() }} грн</h3>
+                    <form action="{{ route('orders.store') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-success btn-lg">
+                            Оформити замовлення
+                        </button>
+                    </form>
+                </div>
             </div>
+            {{-- ----------------------------- --}}
+
         </div>
     @endif
 @endsection
+

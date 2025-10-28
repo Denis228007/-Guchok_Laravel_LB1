@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\OrderController; // <-- ДОДАЙТЕ ЦЕ
 use Illuminate\Support\Facades\Route;
 
 
@@ -27,3 +28,8 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{post}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/remove/{itemId}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/update/{itemId}', [CartController::class, 'update'])->name('cart.update');
+
+// --- Маршрути для замовлень (Квитанцій) ---
+Route::post('/checkout', [OrderController::class, 'store'])->name('orders.store');
+Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+

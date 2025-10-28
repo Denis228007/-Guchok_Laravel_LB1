@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage; // 1. Додаємо імпорт Storage
 
 class PostController extends Controller
 {
@@ -42,6 +43,8 @@ class PostController extends Controller
             'category_id' => ['nullable', 'exists:categories,id'],
             'tags' => ['nullable', 'array'],
             'tags.*' => ['exists:tags,id'],
+            // 👇 ОСЬ ВИРІШЕННЯ ВАШОЇ ПРОБЛЕМИ 👇
+            'price' => ['required', 'numeric', 'min:0'],
         ]);
 
         // Handle the file upload
@@ -95,9 +98,18 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Post $post)
+    public function destroy(Post $post) // 2. Реалізуємо метод
     {
-        // Logic for deleting will be here
+        // Спочатку видаляємо зображення, якщо воно є
+        if ($post->cover_image) {
+            Storage::disk('public')->delete($post->cover_image);
+        }
+
+        // Потім видаляємо сам пост
+        $post->delete();
+
+        // Повертаємо користувача на головну сторінку з повідомленням
+        return redirect()->route('home')->with('success', 'Туристичне місце успішно видалено!');
     }
 }
 
