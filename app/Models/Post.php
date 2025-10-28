@@ -17,6 +17,7 @@ class Post extends Model
         'category_id',
         'title',
         'slug',
+        'price',
         'cover_image',
         'excerpt',
         'body',

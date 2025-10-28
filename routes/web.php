@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
@@ -21,3 +22,8 @@ Route::resource('tags', TagController::class)->only(['index', 'show']);
 
 Route::resource('posts.comments', CommentController::class)->only(['store', 'destroy']);
 
+
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add/{post}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/remove/{itemId}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/update/{itemId}', [CartController::class, 'update'])->name('cart.update');

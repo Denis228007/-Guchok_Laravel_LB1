@@ -10,12 +10,18 @@ use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
         $posts = Post::latest()->with('category', 'author')->paginate(10);
         return view('posts.index', compact('posts'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
         $categories = Category::all();
@@ -23,27 +29,31 @@ class PostController extends Controller
         return view('posts.create', compact('categories', 'tags'));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
+            'cover_image' => ['nullable', 'image', 'max:2048'], // max 2MB
             'excerpt' => ['nullable', 'string'],
             'body' => ['required', 'string'],
             'category_id' => ['nullable', 'exists:categories,id'],
             'tags' => ['nullable', 'array'],
             'tags.*' => ['exists:tags,id'],
-            'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
 
+        // Handle the file upload
         if ($request->hasFile('cover_image')) {
             $validated['cover_image'] = $request->file('cover_image')->store('post-images', 'public');
         }
 
         $validated['user_id'] = auth()->id() ?? 1;
         $validated['slug'] = Str::slug($validated['title']) . '-' . Str::random(6);
-        $validated['published_at'] = now();
-        $validated['is_published'] = true;
+        $validated['published_at'] = now(); // Automatically set publish date
 
+        // Convert the body text into our block structure
         $validated['body'] = [
             ['type' => 'paragraph', 'data' => ['text' => $validated['body']]]
         ];
@@ -57,10 +67,37 @@ class PostController extends Controller
         return redirect()->route('posts.show', $post)->with('status', 'Туристичне місце успішно створено!');
     }
 
+    /**
+     * Display the specified resource.
+     */
     public function show(Post $post)
     {
         $post->load('tags', 'comments');
         return view('posts.show', compact('post'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Post $post)
+    {
+        // Logic for editing will be here
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Post $post)
+    {
+        // Logic for updating will be here
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Post $post)
+    {
+        // Logic for deleting will be here
     }
 }
 
