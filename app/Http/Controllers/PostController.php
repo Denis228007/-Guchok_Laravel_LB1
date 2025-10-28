@@ -37,7 +37,7 @@ class PostController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'cover_image' => ['nullable', 'image', 'max:2048'], // max 2MB
+            'cover_image' => ['nullable', 'image', 'max:2048'],
             'excerpt' => ['nullable', 'string'],
             'body' => ['required', 'string'],
             'category_id' => ['nullable', 'exists:categories,id'],
@@ -47,16 +47,16 @@ class PostController extends Controller
             'price' => ['required', 'numeric', 'min:0'],
         ]);
 
-        // Handle the file upload
+
         if ($request->hasFile('cover_image')) {
             $validated['cover_image'] = $request->file('cover_image')->store('post-images', 'public');
         }
 
         $validated['user_id'] = auth()->id() ?? 1;
         $validated['slug'] = Str::slug($validated['title']) . '-' . Str::random(6);
-        $validated['published_at'] = now(); // Automatically set publish date
+        $validated['published_at'] = now();
 
-        // Convert the body text into our block structure
+
         $validated['body'] = [
             ['type' => 'paragraph', 'data' => ['text' => $validated['body']]]
         ];
@@ -95,20 +95,18 @@ class PostController extends Controller
         // Logic for updating will be here
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(Post $post) // 2. Реалізуємо метод
     {
-        // Спочатку видаляємо зображення, якщо воно є
+
         if ($post->cover_image) {
             Storage::disk('public')->delete($post->cover_image);
         }
 
-        // Потім видаляємо сам пост
+
         $post->delete();
 
-        // Повертаємо користувача на головну сторінку з повідомленням
+
         return redirect()->route('home')->with('success', 'Туристичне місце успішно видалено!');
     }
 }

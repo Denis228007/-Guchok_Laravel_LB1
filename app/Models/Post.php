@@ -17,7 +17,7 @@ class Post extends Model
         'category_id',
         'title',
         'slug',
-        'price', // Переконайтеся, що price тут є
+        'price',
         'cover_image',
         'excerpt',
         'body',
@@ -50,9 +50,7 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
 
-    /**
-     * Отримати всі елементи замовлень, пов'язані з цим постом.
-     */
+
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);

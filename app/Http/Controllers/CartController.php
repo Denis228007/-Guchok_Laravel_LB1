@@ -18,7 +18,7 @@ class CartController extends Controller
         \Cart::add([
             'id' => $post->id,
             'name' => $post->title,
-            'price' => $post->price, // Беремо реальну ціну з поста
+            'price' => $post->price,
             'quantity' => 1,
             'attributes' => [
                 'image' => $post->cover_image,
