@@ -47,7 +47,7 @@
                 <h3 class="text-lg font-semibold">Загальна сума: {{ $order->total }} грн</h3>
             </div>
 
-            {{-- Сюди ми додамо кнопку завантаження PDF --}}
+
             <div class="text-center mt-4">
                  <a href="#" class="btn btn-primary" onclick="window.print(); return false;">
                     Роздрукувати / Зберегти як PDF

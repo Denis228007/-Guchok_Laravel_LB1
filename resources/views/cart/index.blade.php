@@ -55,7 +55,7 @@
                 </tbody>
             </table>
 
-            {{-- 👇 ОНОВЛЕНИЙ БЛОК "Всього" 👇 --}}
+
             <div class="d-flex justify-content-end p-4 border-t-2 border-gray-200">
                 <div classtext-right">
                     <h3 class="text-lg font-semibold mb-3">Всього: {{ Cart::getTotal() }} грн</h3>
