@@ -11,9 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // 👇 ОСЬ ВАШ РЯДОК, ДОДАНИЙ У ПРАВИЛЬНЕ МІСЦЕ 👇
+       
         $middleware->alias([
-            'check.word' => \App\Http\Middleware\CheckWord::class,
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

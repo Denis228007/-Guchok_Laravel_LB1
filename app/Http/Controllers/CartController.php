@@ -2,49 +2,61 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post;
 use Illuminate\Http\Request;
+use App\Models\Product;
 
 class CartController extends Controller
 {
+
     public function index()
     {
-        $cartItems = \Cart::getContent();
-        return view('cart.index', compact('cartItems'));
+        $cart = session()->get('cart', []);
+
+
+        $total = 0;
+        foreach($cart as $item) {
+            $total += $item['price'] * $item['quantity'];
+        }
+
+        return view('cart.index', compact('cart', 'total'));
     }
 
-    public function add(Post $post)
-    {
-        \Cart::add([
-            'id' => $post->id,
-            'name' => $post->title,
-            'price' => $post->price,
-            'quantity' => 1,
-            'attributes' => [
-                'image' => $post->cover_image,
-                'slug' => $post->slug
-            ]
-        ]);
 
-        return redirect()->route('cart.index')->with('success', 'Квиток успішно додано до кошика!');
+    public function addToCart($id)
+    {
+        $product = Product::findOrFail($id);
+        $cart = session()->get('cart', []);
+
+
+        if(isset($cart[$id])) {
+            $cart[$id]['quantity']++;
+        } else {
+
+            $cart[$id] = [
+                'name' => $product->name,
+                'quantity' => 1,
+                'price' => $product->price,
+                'image' => $product->image
+            ];
+        }
+
+        session()->put('cart', $cart);
+        return redirect()->back()->with('success', 'Квиток додано до кошика!');
     }
 
-    public function remove($itemId)
+    public function removeFromCart($id)
     {
-        \Cart::remove($itemId);
-        return redirect()->route('cart.index')->with('success', 'Квиток видалено з кошика.');
+        $cart = session()->get('cart');
+        if(isset($cart[$id])) {
+            unset($cart[$id]);
+            session()->put('cart', $cart);
+        }
+        return redirect()->back();
     }
 
-    public function update(Request $request, $itemId)
+    public function clearCart()
     {
-        \Cart::update($itemId, [
-            'quantity' => [
-                'relative' => false,
-                'value' => $request->quantity
-            ],
-        ]);
-
-        return redirect()->route('cart.index')->with('success', 'Кількість квитків оновлено.');
+        session()->forget('cart');
+        return redirect()->back();
     }
 }
-

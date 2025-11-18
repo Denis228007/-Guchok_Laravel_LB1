@@ -1,35 +1,40 @@
 <?php
 
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\TagController;
-use App\Http\Controllers\OrderController; // <-- ДОДАЙТЕ ЦЕ
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartController;
 
 
-Route::get('/', [PostController::class, 'index'])->name('home');
+Route::get('/', function () {
+    return redirect()->route('products.index');
+});
 
 
-Route::resource('posts', PostController::class);
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 
-Route::resource('categories', CategoryController::class)->only(['index', 'show']);
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
+Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
 
-Route::resource('tags', TagController::class)->only(['index', 'show']);
-
-
-Route::resource('posts.comments', CommentController::class)->only(['store', 'destroy']);
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/product/create', [ProductController::class, 'create'])->name('products.create');
+    Route::post('/product', [ProductController::class, 'store'])->name('products.store');
+    Route::get('/admin/orders', [App\Http\Controllers\OrderController::class, 'adminIndex'])->name('admin.orders');
+    Route::post('/admin/orders/{id}/confirm', [App\Http\Controllers\OrderController::class, 'confirmPayment'])->name('admin.orders.confirm');
+});
 
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/add/{post}', [CartController::class, 'add'])->name('cart.add');
-Route::post('/cart/remove/{itemId}', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/update/{itemId}', [CartController::class, 'update'])->name('cart.update');
+Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
+Route::get('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
+Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
-// --- Маршрути для замовлень (Квитанцій) ---
-Route::post('/checkout', [OrderController::class, 'store'])->name('orders.store');
-Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-
+Route::middleware(['auth'])->group(function () {
+    Route::post('/checkout', [App\Http\Controllers\OrderController::class, 'store'])->name('orders.store');
+    Route::get('/my-orders', [App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
+});

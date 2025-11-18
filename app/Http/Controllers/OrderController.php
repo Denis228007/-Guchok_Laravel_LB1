@@ -2,58 +2,77 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
 
-    public function store(Request $request)
+    public function store()
     {
-        $cartItems = \Cart::getContent();
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('home')->with('error', 'Ваш кошик порожній.');
+        $cart = session()->get('cart');
+
+        if(!$cart) {
+            return redirect()->back()->with('error', 'Кошик порожній!');
         }
 
 
-        $order = DB::transaction(function () use ($cartItems) {
+        $total = 0;
+        foreach($cart as $item) {
+            $total += $item['price'] * $item['quantity'];
+        }
 
-            $order = Order::create([
 
-                'total' => \Cart::getTotal(),
-                'status' => 'completed',
+        $order = Order::create([
+            'user_id' => Auth::id(),
+            'total_price' => $total,
+            'status' => 'new',
+        ]);
+
+
+        foreach($cart as $id => $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $id,
+                'product_name' => $item['name'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
             ]);
+        }
 
 
-            foreach ($cartItems as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'post_id' => $item->id,
-                    'name' => $item->name,
-                    'quantity' => $item->quantity,
-                    'price' => $item->price,
-                ]);
-            }
+        session()->forget('cart');
 
-            return $order;
-        });
-
-
-        \Cart::clear();
-
-
-        return redirect()->route('orders.show', $order)
-            ->with('success', 'Дякуємо! Ваше замовлення успішно оформлено.');
+        return redirect()->route('orders.index')->with('success', 'Дякуємо! Ваше замовлення прийнято.');
     }
 
 
-    public function show(Order $order)
+    public function index()
     {
 
-        $order->load('items.post');
+        $orders = Order::where('user_id', Auth::id())
+                       ->with('items')
+                       ->latest()
+                       ->get();
 
-        return view('orders.show', compact('order'));
+        return view('orders.index', compact('orders'));
+    }
+public function adminIndex()
+    {
+
+        $orders = Order::with('user')->latest()->get();
+
+        return view('admin.orders.index', compact('orders'));
+    }
+
+
+    public function confirmPayment($id)
+    {
+        $order = Order::findOrFail($id);
+        $order->update(['status' => 'paid']);
+
+        return redirect()->back()->with('success', 'Статус замовлення оновлено!');
     }
 }

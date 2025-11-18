@@ -1,75 +1,72 @@
 @extends('layouts.app')
 
-@section('title', 'Ваш кошик')
-
 @section('content')
-    <h1 class="text-2xl font-bold mb-4">Ваш кошик</h1>
+<div class="container">
+    <h1 class="mb-4">Ваш Кошик</h1>
 
+    {{-- Повідомлення про успішне додавання --}}
     @if(session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{{ session('success') }}</span>
+        <div class="alert alert-success">
+            {{ session('success') }}
         </div>
     @endif
 
-    @if($cartItems->isEmpty())
-        <p>Ваш кошик порожній.</p>
-    @else
-        <div class="bg-white shadow-md rounded my-6">
-            <table class="min-w-full leading-normal">
-                <thead>
-                    <tr>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Подорож</th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Ціна</th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Кількість</th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Всього</th>
-                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($cartItems as $item)
+    @if(session('cart') && count(session('cart')) > 0)
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
                         <tr>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p class="text-gray-900 whitespace-no-wrap">{{ $item->name }}</p>
-                            </td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p class="text-gray-900 whitespace-no-wrap">{{ $item->price }} грн</p>
-                            </td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <form action="{{ route('cart.update', $item->id) }}" method="POST">
-                                    @csrf
-                                    <input type="number" name="quantity" value="{{ $item->quantity }}" class="w-16 text-center border rounded">
-                                    <button type="submit" class="text-indigo-600 hover:text-indigo-900">Оновити</button>
-                                </form>
-                            </td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p class="text-gray-900 whitespace-no-wrap">{{ $item->getPriceSum() }} грн</p>
-                            </td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <form action="{{ route('cart.remove', $item->id) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="text-red-600 hover:text-red-900">Видалити</button>
-                                </form>
-                            </td>
+                            <th>Фото</th>
+                            <th>Назва</th>
+                            <th>Ціна</th>
+                            <th>Кількість</th>
+                            <th>Сума</th>
+                            <th>Дії</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-
-            <div class="d-flex justify-content-end p-4 border-t-2 border-gray-200">
-                <div classtext-right">
-                    <h3 class="text-lg font-semibold mb-3">Всього: {{ Cart::getTotal() }} грн</h3>
-                    <form action="{{ route('orders.store') }}" method="POST">
+                    </thead>
+                    <tbody>
+                        @foreach(session('cart') as $id => $details)
+                            <tr>
+                                <td style="width: 100px;">
+                                    <img src="{{ $details['image'] }}" class="img-fluid rounded" alt="">
+                                </td>
+                                <td>{{ $details['name'] }}</td>
+                                <td>{{ $details['price'] }} ₴</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ $details['quantity'] }}</span>
+                                </td>
+                                <td class="fw-bold">{{ $details['price'] * $details['quantity'] }} ₴</td>
+                                <td>
+                                    <a href="{{ route('cart.remove', $id) }}" class="btn btn-danger btn-sm">
+                                        Видалити
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+                <h3 class="mb-0">Разом: <span class="text-success">{{ $total }} ₴</span></h3>
+                <div>
+                    <form action="{{ route('cart.clear') }}" method="POST" class="d-inline">
                         @csrf
-                        <button type="submit" class="btn btn-success btn-lg">
-                            Оформити замовлення
-                        </button>
+                        <button class="btn btn-outline-danger me-2">Очистити кошик</button>
+                    </form>
+                    <form action="{{ route('orders.store') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-primary btn-lg shadow">Оформити замовлення</button>
                     </form>
                 </div>
             </div>
-            {{-- ----------------------------- --}}
-
+        </div>
+    @else
+        <div class="alert alert-info text-center py-5">
+            <h3>Кошик порожній 🛒</h3>
+            <p>Оберіть цікаву подорож у нашому каталозі!</p>
+            <a href="{{ route('products.index') }}" class="btn btn-primary mt-3">Перейти до турів</a>
         </div>
     @endif
+</div>
 @endsection
-
